@@ -2,9 +2,10 @@ import timm
 from torch import nn
 
 class MobileNet(nn.Module):
-    def __init__(self, emb_dim):
-        self.backbone = timm.create_model(self.model_name, pretrained=True)
-        self.backbone.classifier = nn.Linear(1280, self.emb_dim)
+    def __init__(self, model_name, emb_dim):
+        super(MobileNet, self).__init__()
+        self.backbone = timm.create_model(model_name, pretrained=True)
+        self.backbone.classifier = nn.Linear(1280, emb_dim)
 
     def forward(self, x):
         x = self.backbone(x)

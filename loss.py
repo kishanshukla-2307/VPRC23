@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 
-class BatchAllTtripletLoss(nn.Module):
+class BatchAllTripletLoss(nn.Module):
   """Uses all valid triplets to compute Triplet loss
   Args:
     margin: Margin value in the Triplet Loss equation
@@ -212,13 +212,13 @@ class ArcFaceLoss(nn.modules.Module):
         labels = F.one_hot(labels.long(), logits.shape[-1]).float()
         output = (labels * phi) + ((1.0 - labels) * cosine)
         output *= self.s
-        return output
-        # loss = self.crit(output, labels)
-        # if self.reduction == "mean":
-        #     loss = loss.mean()
-        # elif self.reduction == "sum":
-        #     loss = loss.sum()
-        # return loss
+        # return output
+        loss = self.crit(output, labels)
+        if self.reduction == "mean":
+            loss = loss.mean()
+        elif self.reduction == "sum":
+            loss = loss.sum()
+        return loss
     
 class ArcFaceLossAdaptiveMargin(nn.modules.Module):
     def __init__(self, s=45.0, m=0.1, stride=0.1, max_m=0.8, crit="ce", ls=0.9, reduction="mean"):

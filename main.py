@@ -1,20 +1,148 @@
-from trainer import Trainer
+from collections import OrderedDict
+import os
+from tqdm import tqdm
+from train import *
+from data_handler import *
+from dataset import *
+from samplers import *
+from loss import *
+from build_model import build_model
 
-TRAIN_CSV_PATH = '../data/train.csv'
-TEST_CSV_PATH = '../data/test.csv'
-IMG_PATH = '../data/train/'
-TEST_IMG_PATH = '/content/test/'
-CHECKPOINT_PATH = '/content/drive/MyDrive/model_checkpoint'
-MAP_SCORES_PATH = '/content/drive/MyDrive/'
-MODEL_NAME = 'mobilenet'
-NUM_CLASSES = 9691   ## 361
-EMB_DIM = 768
-BATCH_SIZE = 16
-NUM_EPOCHS = 10
-LR = 0.0001
-MODEL_PATH = '/content/drive/MyDrive/model_checkpoint/model_triplet_c&g_LR_imbalance_handled_0.0001_0002.pth'
+import argparse
+import yaml
 
-trainer = Trainer(MODEL_NAME, NUM_CLASSES, BATCH_SIZE, NUM_EPOCHS, LR, 
-    TRAIN_CSV_PATH, TEST_CSV_PATH, CHECKPOINT_PATH, IMG_PATH, TEST_IMG_PATH, MAP_SCORES_PATH, EMB_DIM)
+def load_config(config_filepath='./config.yaml'):
+    with open(config_filepath, 'r') as config_file:
+        config = yaml.safe_load(config_file)
+    
+    return config
 
-trainer.run_training_loop()
+def set_data_handler(train_csv_path, test_csv_path, split_ratio):
+    data_handler = DataHandler(train_csv_path, test_csv_path)
+    data_handler.load_data()
+    data_handler.split(split_ratio)
+    data_handler.set_transformation()
+    return data_handler
+
+def set_criterion(config, model_name):
+    if config[model_name]['loss_fn'] == 'arc_face':
+        return ArcFaceLoss()
+    elif config[model_name]['loss_fn'] == 'triplet_loss':
+        return BatchAllTripletLoss()
+    else:
+        raise NotImplementedError('Loss function not found!!')
+
+def set_train_loader(config, model_name, train_set):
+    if config[model_name]['sampler'] == 'group_based':
+        return torch.utils.data.DataLoader(train_set, batch_sampler=batch_sampler)
+    else:
+        raise NotImplementedError('Unknown sampler!')
+
+def set_validation_loader(config, model_name, validation_set):
+    return torch.utils.data.DataLoader(validation_set, batch_size=config[model_name]['batch_size'], shuffle=False)
+
+def set_test_loader(config, model_name, test_set):
+    return torch.utils.data.DataLoader(test_set, batch_size=config[model_name]['batch_size'], shuffle=False)
+
+def set_optimizer(config, model_name, model):
+    if config[model_name]['optimizer']['name'] == 'sgd':
+        return torch.optim.SGD(model.parameters(),
+                              lr=config[model_name]['optimizer']['lr'],
+                              momentum=config[model_name]['optimizer']['momentum'],
+                              weight_decay=config[model_name]['optimizer']['decay'])
+    elif config[model_name]['optimizer']['name'] == 'adam':
+        return torch.optim.Adam(model.parameters(),
+                              lr=config[model_name]['optimizer']['lr'],
+                              betas=config[model_name]['optimizer']['betas'],
+                              eps=config[model_name]['optimizer']['eps'],
+                              weight_decay=config[model_name]['optimizer']['decay'])
+    elif config[model_name]['optimizer']['name'] == 'adamw':
+        return torch.optim.Adam(model.parameters(),
+                              lr=config[model_name]['optimizer']['lr'],
+                              weight_decay=config[model_name]['optimizer']['decay'])
+    else:
+        raise NotImplementedError('Optimizer not found!!')
+        
+def save_checkpoint(model, optimizer, epoch, outdir):
+    """Saves checkpoint to drive"""
+
+    filename = "mobnet_head_0.0001_{:04d}.pth".format(epoch)
+    directory = outdir
+    filename = os.path.join(directory, filename)
+    weights = model.state_dict()
+    state = OrderedDict([
+        ('state_dict', weights),
+        ('optimizer', optimizer.state_dict()),
+        # ('scheduler', scheduler.state_dict()),
+        ('epoch', epoch),
+    ])
+
+    torch.save(state, filename)
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description='train model')
+    parser.add_argument('--model', dest='model', action='store',
+                    default='MobNet',
+                    help='Model name')
+    args = parser.parse_args()
+
+    if args.model == None:
+        raise ('Model name not provided')
+
+    config = load_config()
+    # config['model'] = args.model
+
+    # print(config['model'], config[config['model']])
+
+    data_handler = set_data_handler(config['system']['train_csv_path'], config['system']['test_csv_path'], config['system']['split_ratio'])
+
+    train_set = Product10kDataset(data_handler.train['name'].to_numpy(), 
+                    data_handler.train['class'].to_numpy(),
+                    data_handler.train['group'].to_numpy(),
+                    config['system']['train_samples_path'],
+                    data_handler.transform, 
+                    offline_strategy=False)
+
+    validation_set = Product10kDataset(data_handler.validation['name'].to_numpy(),
+                        data_handler.validation['class'].to_numpy(),
+                        data_handler.train['group'].to_numpy(),
+                        config['system']['train_samples_path'],
+                        data_handler.transform,
+                        offline_strategy=False)
+
+    test_set = Product10kDataset(data_handler.test['name'].to_numpy(),
+                    data_handler.test['class'].to_numpy(),
+                    data_handler.test['Usage'].to_numpy(),
+                    config['system']['test_samples_path'],
+                    data_handler.transform,
+                    offline_strategy=False)
+
+    batch_sampler = Batch_Sampler(data_handler.train['class'].to_numpy(), data_handler.train['group'].to_numpy(), config[args.model]['batch_size'])
+    
+    model = build_model(config, args.model)
+    model.to(config['system']['device'])
+                                                                                                                                               
+    loss_fn = set_criterion(config, args.model)
+    optimizer = set_optimizer(config, args.model, model)
+    # scheduler = 
+
+    train_loader = set_train_loader(config, args.model, train_set)
+    validation_loader = set_validation_loader(config, args.model, validation_set)
+    test_loader = set_test_loader(config, args.model, test_set)
+
+    epochs_iter = tqdm(range(config[args.model]['epochs']), dynamic_ncols=True, 
+                    desc='Epochs', position=0)
+    
+    # scheduler = self.get_scheduler(self.optimizer)
+
+    best_acc = 0.0
+    for epoch in epochs_iter:
+        train_epoch(config, model, train_loader, loss_fn, optimizer, epoch)
+        # save_checkpoint(self.model, self.optimizer, scheduler, epoch, self.checkpoint_path)
+        # epoch_avg_acc = self.validation(self.model, self.val_loader, self.criterion, epoch)
+
+    # # print("best accuracy: ", best_acc)
+
+    # print("test mAP: ", self.test(validation_set, test_set))

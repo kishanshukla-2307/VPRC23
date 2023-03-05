@@ -1,9 +1,9 @@
 ---
 system:
-  train_csv_path: ../data/train.csv
-  test_csv_path: ../data/test.csv
-  train_samples_path: ../data/train/
-  test_samples_path: ../data/test/
+  train_csv_path: ../../Product10k/train.csv
+  test_csv_path: ../../Product10k/test.csv
+  train_samples_path: /../../../../content/train/
+  test_samples_path: /../../Product10k/test/
   checkpoint_path: /content/drive/MyDrive/model_checkpoint
   map_scores_path: /content/drive/MyDrive/
   split_ratio: 0.15
@@ -38,6 +38,7 @@ BEiT:
     momentum: 0.9
     decay: 0.0001
   loss_fn: 'arc_face'
+  sampler: 'group_based'
   load_saved: False
   from_timm: True
   model_path: '/content/drive/MyDrive/model_checkpoint/model_triplet_c&g_LR_imbalance_handled_0.0001_0002.pth'

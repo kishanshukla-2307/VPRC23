@@ -12,7 +12,7 @@ def build_model(config, model_name):
         print('model not found')
 
 def build_mobnet(config):
-    backbone = MobileNet(config['MobNet']['model_name'], config['MobNet']['embedding_dim'])
+    backbone = MobileNet(config['MobNet']['model_name'], config['MobNet']['num_classes'])
     return backbone
 
 def build_BEiT(config):

@@ -4,33 +4,25 @@ from sklearn.preprocessing import normalize
 import timm
 import torch
 from tqdm import tqdm
-# from torch.nn.functional import normalize
 
-# def __init__(self, model_name, num_classes, batch_size, num_epochs, lr, train_csv_path, test_csv_path, checkpoint_path, img_path, test_img_path, map_scores_path, emb_dim=128):
-#     self.model_name = model_name
-#     self.num_classes = num_classes
-#     self.batch_size = batch_size
-#     self.num_epochs = num_epochs
-#     self.lr = lr
-#     self.train_csv_path = train_csv_path
-#     self.test_csv_path = test_csv_path
-#     self.checkpoint_path = checkpoint_path
-#     self.img_path = img_path
-#     self.test_img_path = test_img_path
-#     self.map_scores_path = map_scores_path
-#     self.emb_dim = emb_dim
-#     self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-#     self.image_processor = AutoImageProcessor.from_pretrained("microsoft/beit-base-patch16-224-pt22k")
-#     self.criterion_class = ArcFaceLoss().cuda()
-#     self.feature_extract = False
-#     self.model = None
-#     self.optimizer = None
-#     self.criterion = None
-#     self.train_loader = None
-#     self.val_loader = None
-#     self.data_handler = None
-    
-def train_epoch(config, model: torch.nn.Module,
+class AverageMeter(object):
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
+
+def train_epoch(config, logger, 
+        model: torch.nn.Module,
         train_loader: torch.utils.data.DataLoader,
         criterion: torch.nn.Module,
         optimizer: torch.optim.Optimizer,
@@ -38,9 +30,9 @@ def train_epoch(config, model: torch.nn.Module,
 
     model.train()
 
-    train_iter = tqdm(train_loader, desc='Train', dynamic_ncols=True, position=2)
+    train_iter = tqdm(train_loader)
 
-    running_loss = []
+    running_loss = AverageMeter()
 
     for step, crr_batch in enumerate(train_iter):
 
@@ -53,6 +45,8 @@ def train_epoch(config, model: torch.nn.Module,
         # imgs = self.image_processor(imgs, return_tensors="pt")
         # inputs = image_processor(image, return_tensors="pt")
         # print(imgs.shape)
+        # if preprocessor is not None:
+        #     imgs = preprocessor(imgs)
         imgs = imgs.to(config['system']['device'])
         class_ids = class_ids.to(config['system']['device'])
         group_ids = group_ids.to(config['system']['device'])
@@ -70,10 +64,15 @@ def train_epoch(config, model: torch.nn.Module,
         loss.backward()
         optimizer.step()
 
-        running_loss.append(loss.cpu().detach().numpy())
+        running_loss.update(loss.cpu().detach().numpy(), imgs.size(0))
+        
+        train_iter.set_description('L_c: %.4f, L_a: %.4f' % (running_loss.val, running_loss.avg))
 
         if step % 10 == 0 and not step == 0:
-            print('Epoch: {}; step: {}; loss: {:.4f}'.format(epoch, step, running_loss[-1]))
+            # print('Epoch: {}; step: {}; loss: {:.4f}'.format(epoch, step, running_loss[-1]))
+            mu = torch.cuda.max_memory_allocated() / (1024.0 * 1024.0)
+            logger.info('Epoch: %d | Iter: [%d/%d], Memory_used: %.0fMB, loss_cur: %.5f, loss_avg: %.5f' % (epoch, step, len(train_loader), mu, running_loss.val, running_loss.avg))
+
 
     print('Train process of epoch: {} is done; \n loss: {:.4f}'.format(epoch, np.mean(running_loss)))
 

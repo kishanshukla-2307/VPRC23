@@ -7,6 +7,7 @@ from dataset import *
 from samplers import *
 from loss import *
 from build_model import build_model
+from logger import create_logger
 
 import argparse
 import yaml
@@ -17,11 +18,11 @@ def load_config(config_filepath='./config.yaml'):
     
     return config
 
-def set_data_handler(train_csv_path, test_csv_path, split_ratio):
+def set_data_handler(train_csv_path, test_csv_path, split_ratio, preprocessor):
     data_handler = DataHandler(train_csv_path, test_csv_path)
     data_handler.load_data()
     data_handler.split(split_ratio)
-    data_handler.set_transformation()
+    data_handler.set_transformation(preprocessor)
     return data_handler
 
 def set_criterion(config, model_name):
@@ -29,6 +30,8 @@ def set_criterion(config, model_name):
         return ArcFaceLoss()
     elif config[model_name]['loss_fn'] == 'triplet_loss':
         return BatchAllTripletLoss()
+    elif config[model_name]['loss_fn'] == 'cross_entropy':
+        return torch.nn.CrossEntropyLoss()
     else:
         raise NotImplementedError('Loss function not found!!')
 
@@ -63,14 +66,15 @@ def set_optimizer(config, model_name, model):
     else:
         raise NotImplementedError('Optimizer not found!!')
         
-def save_checkpoint(model, optimizer, epoch, outdir):
+def save_checkpoint(config, model_name, model, optimizer, epoch, outdir):
     """Saves checkpoint to drive"""
 
-    filename = "mobnet_head_0.0001_{:04d}.pth".format(epoch)
+    filename = "{}_{:04d}.pth".format(model_name, epoch)
     directory = outdir
     filename = os.path.join(directory, filename)
     weights = model.state_dict()
     state = OrderedDict([
+        ('config', config),
         ('state_dict', weights),
         ('optimizer', optimizer.state_dict()),
         # ('scheduler', scheduler.state_dict()),
@@ -92,11 +96,14 @@ if __name__ == '__main__':
         raise ('Model name not provided')
 
     config = load_config()
-    # config['model'] = args.model
+    
+    logger = create_logger(output_dir=config['system']['output']+"/"+args.model, name=f"{args.model}")
+    logger.info(f"config: {config}")
 
-    # print(config['model'], config[config['model']])
+    model, preprocessor = build_model(config, args.model)
+    model.to(config['system']['device'])
 
-    data_handler = set_data_handler(config['system']['train_csv_path'], config['system']['test_csv_path'], config['system']['split_ratio'])
+    data_handler = set_data_handler(config['system']['train_csv_path'], config['system']['test_csv_path'], config['system']['split_ratio'], preprocessor)
 
     train_set = Product10kDataset(data_handler.train['name'].to_numpy(), 
                     data_handler.train['class'].to_numpy(),
@@ -120,9 +127,6 @@ if __name__ == '__main__':
                     offline_strategy=False)
 
     batch_sampler = Batch_Sampler(data_handler.train['class'].to_numpy(), data_handler.train['group'].to_numpy(), config[args.model]['batch_size'])
-    
-    model = build_model(config, args.model)
-    model.to(config['system']['device'])
                                                                                                                                                
     loss_fn = set_criterion(config, args.model)
     optimizer = set_optimizer(config, args.model, model)
@@ -132,15 +136,16 @@ if __name__ == '__main__':
     validation_loader = set_validation_loader(config, args.model, validation_set)
     test_loader = set_test_loader(config, args.model, test_set)
 
+    logger.info("Start training")
+
     epochs_iter = tqdm(range(config[args.model]['epochs']), dynamic_ncols=True, 
                     desc='Epochs', position=0)
     
-    # scheduler = self.get_scheduler(self.optimizer)
-
     best_acc = 0.0
     for epoch in epochs_iter:
-        train_epoch(config, model, train_loader, loss_fn, optimizer, epoch)
-        # save_checkpoint(self.model, self.optimizer, scheduler, epoch, self.checkpoint_path)
+        logger.info(f"----------[Epoch {epoch}]----------")  
+        train_epoch(config, logger, model, train_loader, loss_fn, optimizer, epoch)
+        save_checkpoint(config, args.model, model, optimizer, epoch, config['system']['output'] + "/" + args.model)
         # epoch_avg_acc = self.validation(self.model, self.val_loader, self.criterion, epoch)
 
     # # print("best accuracy: ", best_acc)

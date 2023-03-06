@@ -16,7 +16,7 @@ class Batch_Sampler(Sampler):
                                   self.group, self.batch_size, self.num_classes, self.num_group)
     return sample_iter
   
-  def __len__():
+  def __len__(self):
     return 3
 
 

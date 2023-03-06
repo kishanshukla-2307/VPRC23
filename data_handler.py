@@ -37,16 +37,17 @@ class DataHandler():
         self.validation = self.train.groupby('class', group_keys=False).apply(lambda x: x.sample(n=1, random_state=42) if (len(x) == 1) else x.sample(n=len(x)//10 + 1 , random_state=42))
         self.gallery_for_val = train_test_split(self.train, test_size=0.1, stratify=self.train['class'])[1]
 
-    def set_transformation(self):
-        self.transform = T.Compose([
-            T.Resize((224,224)),
-            T.RandomRotation((0, 180)),
-            T.RandomPerspective(distortion_scale=0.6),
-            T.RandomHorizontalFlip(p=0.5),
-            T.RandomVerticalFlip(p=0.5),
-            # T.RandomEqualize(),
-            # T.RandomGrayscale(p=0.5),
-            T.ToTensor(),
-            T.Normalize(mean=[0.485, 0.456, 0.406],
-                                    std=[0.229, 0.224, 0.225])
-        ])
+    def set_transformation(self, preprocessor):
+        # self.transform = T.Compose([
+        #     T.Resize((224,224)),
+        #     T.RandomRotation((0, 180)),
+        #     T.RandomPerspective(distortion_scale=0.6),
+        #     T.RandomHorizontalFlip(p=0.5),
+        #     T.RandomVerticalFlip(p=0.5),
+        #     # T.RandomEqualize(),
+        #     # T.RandomGrayscale(p=0.5),
+        #     T.ToTensor(),
+        #     T.Normalize(mean=[0.485, 0.456, 0.406],
+        #                             std=[0.229, 0.224, 0.225])
+        # ])
+        self.transform = preprocessor

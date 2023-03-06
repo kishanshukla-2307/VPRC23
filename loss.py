@@ -177,12 +177,12 @@ class Smoth_CE_Loss(nn.Module):
         labels *= self.ls_
         return self.crit(logits, labels)
 
-class DenseCrossEntropy(nn.Module):
-    def forward(self, x, target):
-        logprobs = F.log_softmax(x, dim=1)
-        loss = -logprobs * target
-        loss = loss.sum(dim=1)
-        return loss
+# class DenseCrossEntropy(nn.Module):
+#     def forward(self, x, target):
+#         logprobs = F.log_softmax(x, dim=1)
+#         loss = -logprobs * target
+#         loss = loss.sum(dim=1)
+#         return loss
 
 class ArcFaceLoss(nn.modules.Module):
     def __init__(self, s=30.0, m=0.3, crit="ce", ls=0.9, reduction="mean"):
@@ -313,3 +313,14 @@ class Contrastive_Arc_Loss(nn.Module):
         elif self.reduction == "sum":
             loss = loss.sum()
         return loss
+
+
+class DenseCrossEntropyLoss(nn.Module):
+    def forward(self, x, target):
+        x = x.float()
+        target = target.float()
+        logprobs = torch.nn.functional.log_softmax(x, dim=-1)
+
+        loss = -logprobs * target
+        loss = loss.sum(-1)
+        return loss.mean()

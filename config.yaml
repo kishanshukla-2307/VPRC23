@@ -27,7 +27,7 @@ MobNet:
   output_dir: /content/drive/MyDrive/model_checkpoint/model_triplet_c&g_LR_imbalance_handled_0.0001_0002.pth
 
 BEiT:
-  MODEL_NAME: 'microsoft/beit-base-patch16-224-pt22k'
+  model_name: 'microsoft/beit-base-patch16-224-pt22k'
   num_classes: 9691
   embedding_dim: 726
   batch_size: 64
@@ -44,7 +44,7 @@ BEiT:
   output_dir: '/content/drive/MyDrive/model_checkpoint/model_triplet_c&g_LR_imbalance_handled_0.0001_0002.pth'
 
 VitB:
-  MODEL_NAME: 'ViT-B-32-quickgelu'
+  model_name: 'ViT-B-32-quickgelu'
   num_classes: 9691
   embedding_dim: 512
   batch_size: 4
@@ -56,6 +56,22 @@ VitB:
     decay: 0.0001
   loss_fn: 'cross_entropy'
   sampler: 'group_based'
+  load_saved: False
+  from_timm: True
+  output_dir: '/content/drive/MyDrive/model_checkpoint/model_triplet_c&g_LR_imbalance_handled_0.0001_0002.pth'
+
+
+VitH:
+  model_name: 'ViT-H-14'
+  num_classes: 9691
+  embedding_dim: 128
+  batch_size: 4
+  epochs: 10
+  optimizer:
+    name: adam
+    lr: 0.0001
+  loss_fn: 'dense_cross_entropy'
+  sampler: 'default'
   load_saved: False
   from_timm: True
   output_dir: '/content/drive/MyDrive/model_checkpoint/model_triplet_c&g_LR_imbalance_handled_0.0001_0002.pth'

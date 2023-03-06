@@ -32,6 +32,8 @@ def set_criterion(config, model_name):
         return BatchAllTripletLoss()
     elif config[model_name]['loss_fn'] == 'cross_entropy':
         return torch.nn.CrossEntropyLoss()
+    elif config[model_name]['loss_fn'] == 'dense_cross_entropy':
+        return DenseCrossEntropyLoss()
     else:
         raise NotImplementedError('Loss function not found!!')
 

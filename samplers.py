@@ -17,7 +17,7 @@ class Batch_Sampler(Sampler):
     return sample_iter
   
   def __len__(self):
-    return 3
+    return self.total_samples//self.batch_size
 
 
 class Sample_Iterator:
@@ -46,20 +46,9 @@ class Sample_Iterator:
     raise StopIteration
 
   def group_based_sampling(self, num_groups):
-    if True:
-      group_nos = self.uniform_sampling_of_group(num_groups)
-      return self.uniform_sampling_of_class_within_grp(group_nos)
+    group_nos = self.uniform_sampling_of_group(num_groups)
+    return self.uniform_sampling_of_class_within_grp(group_nos)
 
-    else:
-      ids = []
-      while len(ids) < self.batch_size:
-        group_nos = np.random.randint(0, 361, num_groups)
-        
-        ids = np.empty(0)
-        for grp in group_nos:
-            ids = np.append(ids, np.where(self.group == grp))
-                    
-      return np.random.choice(ids, size=self.batch_size)
   
   def uniform_sampling_of_group(self, num_groups):
     p0 = 1/self.tot_classes  ## 1/num_classes
@@ -87,3 +76,6 @@ class Sample_Iterator:
     p = [class_probs[self.class_ids[id]] for id in ids]
     p = p / np.sum(p)
     return np.random.choice(ids, size=self.batch_size, p=p)
+  
+  def random_sampling(self):
+    return np.random.choice(np.arange(0,self.total_samples-1,1), size=self.batch_size)

@@ -36,10 +36,12 @@ def set_criterion(config, model_name):
         raise NotImplementedError('Loss function not found!!')
 
 def set_train_loader(config, model_name, train_set):
-    if config[model_name]['sampler'] == 'group_based':
+    if config[model_name]['sampler'] == 'default':
+        return torch.utils.data.DataLoader(train_set, batch_size=config[model_name]['batch_size'], shuffle=True)
+    elif config[model_name]['sampler'] == 'group_based':
         return torch.utils.data.DataLoader(train_set, batch_sampler=batch_sampler)
     else:
-        raise NotImplementedError('Unknown sampler!')
+        raise NotImplementedError('{} sampler not implemented!'.format(config[model_name]['sampler']))
 
 def set_validation_loader(config, model_name, validation_set):
     return torch.utils.data.DataLoader(validation_set, batch_size=config[model_name]['batch_size'], shuffle=False)
@@ -55,10 +57,7 @@ def set_optimizer(config, model_name, model):
                               weight_decay=config[model_name]['optimizer']['decay'])
     elif config[model_name]['optimizer']['name'] == 'adam':
         return torch.optim.Adam(model.parameters(),
-                              lr=config[model_name]['optimizer']['lr'],
-                              betas=config[model_name]['optimizer']['betas'],
-                              eps=config[model_name]['optimizer']['eps'],
-                              weight_decay=config[model_name]['optimizer']['decay'])
+                              lr=config[model_name]['optimizer']['lr'])
     elif config[model_name]['optimizer']['name'] == 'adamw':
         return torch.optim.Adam(model.parameters(),
                               lr=config[model_name]['optimizer']['lr'],

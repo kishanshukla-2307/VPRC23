@@ -1,7 +1,36 @@
-[2023-03-06 19:36:46 VitB] (main.py 101): INFO config: {'system': {'train_csv_path': '../data/train.csv', 'test_csv_path': '../data/test.csv', 'train_samples_path': '../data/train/', 'test_samples_path': '/../../Product10k/test/', 'output': './output', 'map_scores_path': '/content/drive/MyDrive/', 'split_ratio': 0.15, 'device': 'cpu'}, 'MobNet': {'model_name': 'mobilenetv3_large_100', 'num_classes': 9691, 'embedding_dim': 128, 'batch_size': 4, 'epochs': 10, 'optimizer': {'name': 'sgd', 'lr': 0.0001, 'momentum': 0.9, 'decay': 0.0001}, 'loss_fn': 'arc_face', 'sampler': 'group_based', 'load_saved': False, 'from_timm': True, 'output_dir': '/content/drive/MyDrive/model_checkpoint/model_triplet_c&g_LR_imbalance_handled_0.0001_0002.pth'}, 'BEiT': {'MODEL_NAME': 'microsoft/beit-base-patch16-224-pt22k', 'num_classes': 9691, 'embedding_dim': 726, 'batch_size': 64, 'epochs': 10, 'optimizer': {'name': 'sgd', 'lr': 0.0001, 'momentum': 0.9, 'decay': 0.0001}, 'loss_fn': 'arc_face', 'sampler': 'group_based', 'load_saved': False, 'from_timm': True, 'output_dir': '/content/drive/MyDrive/model_checkpoint/model_triplet_c&g_LR_imbalance_handled_0.0001_0002.pth'}, 'VitB': {'MODEL_NAME': 'ViT-B-32-quickgelu', 'num_classes': 9691, 'embedding_dim': 512, 'batch_size': 4, 'epochs': 10, 'optimizer': {'name': 'sgd', 'lr': 0.001, 'momentum': 0.9, 'decay': 0.0001}, 'loss_fn': 'cross_entropy', 'sampler': 'group_based', 'load_saved': False, 'from_timm': True, 'output_dir': '/content/drive/MyDrive/model_checkpoint/model_triplet_c&g_LR_imbalance_handled_0.0001_0002.pth'}}
-[2023-03-06 19:37:00 VitB] (main.py 139): INFO Start training
-[2023-03-06 19:37:00 VitB] (main.py 146): INFO ----------[Epoch 0]----------
-[2023-03-06 19:37:06 VitB] (train.py 74): INFO Epoch: 0 | Iter: [10/3], Memory_used: 0MB, loss_cur: 9.18491, loss_avg: 9.21482
-[2023-03-06 19:37:11 VitB] (train.py 74): INFO Epoch: 0 | Iter: [20/3], Memory_used: 0MB, loss_cur: 9.32765, loss_avg: 9.21934
-[2023-03-06 19:37:17 VitB] (train.py 74): INFO Epoch: 0 | Iter: [30/3], Memory_used: 0MB, loss_cur: 9.07802, loss_avg: 9.20094
-[2023-03-06 19:37:22 VitB] (train.py 74): INFO Epoch: 0 | Iter: [40/3], Memory_used: 0MB, loss_cur: 9.16624, loss_avg: 9.21755
+[2023-03-09 03:59:21 VitB] (main.py 102): INFO config: {'system': {'train_csv_path': '../../Product10k/preprocessed_train.csv', 'test_csv_path': '../../Product10k/test.csv', 'train_samples_path': '/../../../../content/train/', 'test_samples_path': '/../../Product10k/test/', 'output': './output', 'map_scores_path': '/content/drive/MyDrive/', 'split_ratio': 0.15, 'device': 'cuda'}, 'MobNet': {'model_name': 'mobilenetv3_large_100', 'num_classes': 9691, 'embedding_dim': 128, 'batch_size': 4, 'epochs': 10, 'optimizer': {'name': 'sgd', 'lr': 0.0001, 'momentum': 0.9, 'decay': 0.0001}, 'loss_fn': 'arc_face', 'sampler': 'group_based', 'load_saved': False, 'from_timm': True, 'output_dir': '/content/drive/MyDrive/model_checkpoint/model_triplet_c&g_LR_imbalance_handled_0.0001_0002.pth'}, 'BEiT': {'model_name': 'microsoft/beit-base-patch16-224-pt22k', 'num_classes': 9691, 'embedding_dim': 726, 'batch_size': 64, 'epochs': 10, 'optimizer': {'name': 'sgd', 'lr': 0.0001, 'momentum': 0.9, 'decay': 0.0001}, 'loss_fn': 'arc_face', 'sampler': 'group_based', 'load_saved': False, 'from_timm': True, 'output_dir': '/content/drive/MyDrive/model_checkpoint/model_triplet_c&g_LR_imbalance_handled_0.0001_0002.pth'}, 'VitB': {'model_name': 'ViT-B-32-quickgelu', 'num_classes': 7907, 'embedding_dim': 128, 'batch_size': 1024, 'epochs': 35, 'optimizer': {'name': 'adam', 'lr': 0.0001}, 'loss_fn': 'dense_cross_entropy', 'sampler': 'default', 'load_saved': True, 'epoch_offset': 5, 'from_timm': True, 'ckpt_path': './output/VitB/VitB_0004.pth'}, 'VitH': {'model_name': 'ViT-H-14', 'num_classes': 7907, 'embedding_dim': 128, 'batch_size': 128, 'epochs': 2, 'optimizer': {'name': 'adam', 'lr': 0.0001}, 'loss_fn': 'dense_cross_entropy', 'sampler': 'default', 'load_saved': True, 'epoch_offset': 1, 'from_timm': False, 'ckpt_path': '/content/drive/MyDrive/Github/VPRC23/output/VitH/VitH_without_arcface_0000.pth'}}
+[2023-03-09 03:59:21 VitB] (build_model.py 12): INFO Building model...
+[2023-03-09 03:59:45 VitB] (main.py 142): INFO Start training
+[2023-03-09 03:59:45 VitB] (main.py 149): INFO ----------[Epoch 0]----------
+[2023-03-09 04:06:10 VitB] (train.py 63): INFO Epoch: 0 | Iter: [10/133], Memory_used: 3617MB, loss_cur: 1.14136, loss_avg: 1.05278
+[2023-03-09 04:11:55 VitB] (train.py 63): INFO Epoch: 0 | Iter: [20/133], Memory_used: 3617MB, loss_cur: 1.04467, loss_avg: 1.04798
+[2023-03-09 04:17:37 VitB] (train.py 63): INFO Epoch: 0 | Iter: [30/133], Memory_used: 3617MB, loss_cur: 1.00377, loss_avg: 1.04183
+[2023-03-09 04:23:21 VitB] (train.py 63): INFO Epoch: 0 | Iter: [40/133], Memory_used: 3617MB, loss_cur: 1.13511, loss_avg: 1.04123
+[2023-03-09 04:29:06 VitB] (train.py 63): INFO Epoch: 0 | Iter: [50/133], Memory_used: 3617MB, loss_cur: 1.03941, loss_avg: 1.03009
+[2023-03-09 04:34:57 VitB] (train.py 63): INFO Epoch: 0 | Iter: [60/133], Memory_used: 3617MB, loss_cur: 1.03138, loss_avg: 1.02605
+[2023-03-09 04:40:43 VitB] (train.py 63): INFO Epoch: 0 | Iter: [70/133], Memory_used: 3617MB, loss_cur: 0.99597, loss_avg: 1.02052
+[2023-03-09 04:46:23 VitB] (train.py 63): INFO Epoch: 0 | Iter: [80/133], Memory_used: 3617MB, loss_cur: 1.12756, loss_avg: 1.01779
+[2023-03-09 04:52:10 VitB] (train.py 63): INFO Epoch: 0 | Iter: [90/133], Memory_used: 3617MB, loss_cur: 1.03928, loss_avg: 1.01592
+[2023-03-09 04:57:54 VitB] (train.py 63): INFO Epoch: 0 | Iter: [100/133], Memory_used: 3617MB, loss_cur: 0.96219, loss_avg: 1.01370
+[2023-03-09 05:03:34 VitB] (train.py 63): INFO Epoch: 0 | Iter: [110/133], Memory_used: 3617MB, loss_cur: 0.94733, loss_avg: 1.01242
+[2023-03-09 05:09:14 VitB] (train.py 63): INFO Epoch: 0 | Iter: [120/133], Memory_used: 3617MB, loss_cur: 0.94339, loss_avg: 1.00926
+[2023-03-09 05:14:57 VitB] (train.py 63): INFO Epoch: 0 | Iter: [130/133], Memory_used: 3617MB, loss_cur: 0.93884, loss_avg: 1.00639
+[2023-03-09 05:15:49 VitB] (main.py 149): INFO ----------[Epoch 1]----------
+[2023-03-09 05:21:58 VitB] (train.py 63): INFO Epoch: 1 | Iter: [10/133], Memory_used: 3617MB, loss_cur: 0.97215, loss_avg: 0.92886
+[2023-03-09 05:27:31 VitB] (train.py 63): INFO Epoch: 1 | Iter: [20/133], Memory_used: 3617MB, loss_cur: 0.92048, loss_avg: 0.92057
+[2023-03-09 05:33:08 VitB] (train.py 63): INFO Epoch: 1 | Iter: [30/133], Memory_used: 3617MB, loss_cur: 0.82920, loss_avg: 0.91640
+[2023-03-09 05:38:42 VitB] (train.py 63): INFO Epoch: 1 | Iter: [40/133], Memory_used: 3617MB, loss_cur: 0.98559, loss_avg: 0.92223
+[2023-03-09 05:44:16 VitB] (train.py 63): INFO Epoch: 1 | Iter: [50/133], Memory_used: 3617MB, loss_cur: 0.93596, loss_avg: 0.92206
+[2023-03-09 05:49:56 VitB] (train.py 63): INFO Epoch: 1 | Iter: [60/133], Memory_used: 3617MB, loss_cur: 0.95876, loss_avg: 0.92004
+[2023-03-09 05:55:33 VitB] (train.py 63): INFO Epoch: 1 | Iter: [70/133], Memory_used: 3617MB, loss_cur: 0.86972, loss_avg: 0.91981
+[2023-03-09 06:01:04 VitB] (train.py 63): INFO Epoch: 1 | Iter: [80/133], Memory_used: 3617MB, loss_cur: 0.85192, loss_avg: 0.91677
+[2023-03-09 06:06:39 VitB] (train.py 63): INFO Epoch: 1 | Iter: [90/133], Memory_used: 3617MB, loss_cur: 0.93174, loss_avg: 0.91626
+[2023-03-09 06:12:15 VitB] (train.py 63): INFO Epoch: 1 | Iter: [100/133], Memory_used: 3617MB, loss_cur: 0.95228, loss_avg: 0.91818
+[2023-03-09 06:17:48 VitB] (train.py 63): INFO Epoch: 1 | Iter: [110/133], Memory_used: 3617MB, loss_cur: 0.98429, loss_avg: 0.92133
+[2023-03-09 06:23:24 VitB] (train.py 63): INFO Epoch: 1 | Iter: [120/133], Memory_used: 3617MB, loss_cur: 0.95187, loss_avg: 0.92321
+[2023-03-09 06:29:00 VitB] (train.py 63): INFO Epoch: 1 | Iter: [130/133], Memory_used: 3617MB, loss_cur: 1.05324, loss_avg: 0.92449
+[2023-03-09 06:29:55 VitB] (main.py 149): INFO ----------[Epoch 2]----------
+[2023-03-09 06:36:03 VitB] (train.py 63): INFO Epoch: 2 | Iter: [10/133], Memory_used: 3617MB, loss_cur: 0.87488, loss_avg: 0.88326
+[2023-03-09 06:41:42 VitB] (train.py 63): INFO Epoch: 2 | Iter: [20/133], Memory_used: 3617MB, loss_cur: 0.89655, loss_avg: 0.87624
+[2023-03-09 06:47:18 VitB] (train.py 63): INFO Epoch: 2 | Iter: [30/133], Memory_used: 3617MB, loss_cur: 0.89134, loss_avg: 0.88255
+[2023-03-09 06:52:51 VitB] (train.py 63): INFO Epoch: 2 | Iter: [40/133], Memory_used: 3617MB, loss_cur: 0.91826, loss_avg: 0.88331

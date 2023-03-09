@@ -38,15 +38,6 @@ def train_epoch(config, logger,
 
         imgs, class_ids, group_ids = crr_batch
 
-        # np_imgs = imgs.numpy()
-        # imgs = np.split(np_imgs, imgs.shape[0], axis=0)
-        # imgs = [np.squeeze(x, axis=0) for x in imgs]
-        # # print(imgs.shape)
-        # imgs = self.image_processor(imgs, return_tensors="pt")
-        # inputs = image_processor(image, return_tensors="pt")
-        # print(imgs.shape)
-        # if preprocessor is not None:
-        #     imgs = preprocessor(imgs)
         imgs = imgs.to(config['system']['device'])
         class_ids = class_ids.to(config['system']['device'])
         group_ids = group_ids.to(config['system']['device'])
@@ -55,10 +46,8 @@ def train_epoch(config, logger,
 
         logits = model(imgs)
 
-        # modified_logits = self.criterion_class(logits, class_ids)
-        # loss = self.arcface_loss(embeddings, class_ids.reshape(class_ids.shape[0], 1))
-        # output = self.classifier(modified_emb)
-
+        # print(class_ids)
+        class_ids = torch.nn.functional.one_hot(class_ids, 7907)
         loss = criterion(logits, class_ids)
 
         loss.backward()
@@ -66,7 +55,7 @@ def train_epoch(config, logger,
 
         running_loss.update(loss.cpu().detach().numpy(), imgs.size(0))
         
-        train_iter.set_description('L_c: %.4f, L_a: %.4f' % (running_loss.val, running_loss.avg))
+        # train_iter.set_description('L_c: %.4f, L_a: %.4f' % (running_loss.val, running_loss.avg))
 
         if step % 10 == 0 and not step == 0:
             # print('Epoch: {}; step: {}; loss: {:.4f}'.format(epoch, step, running_loss[-1]))
@@ -74,7 +63,7 @@ def train_epoch(config, logger,
             logger.info('Epoch: %d | Iter: [%d/%d], Memory_used: %.0fMB, loss_cur: %.5f, loss_avg: %.5f' % (epoch, step, len(train_loader), mu, running_loss.val, running_loss.avg))
 
 
-    print('Train process of epoch: {} is done; \n loss: {:.4f}'.format(epoch, np.mean(running_loss)))
+    print('Train process of epoch: {} is done; \n loss: {:f}'.format(epoch, running_loss.avg))
 
 def validation(self, model: torch.nn.Module,
             val_loader: torch.utils.data.DataLoader,
@@ -105,7 +94,7 @@ def validation(self, model: torch.nn.Module,
             if step % 1 == 0 and not step == 0:
                 print('Epoch: {}; step: {}; loss: {:.4f}'.format(epoch, step, running_loss[-1]))
 
-    print('Validation of epoch: {} is done; \n loss: {:.4f}'.format(epoch, np.mean(running_loss)))
+    print('Validation of epoch: {} is done; \n loss: {:.4f}'.format(epoch, running_loss.avg))
 
     return np.mean(running_loss)
 

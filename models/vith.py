@@ -1,5 +1,5 @@
 from torch import nn
-from .head import ArcMarginProduct_subcenter
+from .head import *
 from .neck import Neck
 
 class CustomVitH(nn.Module):
@@ -7,7 +7,8 @@ class CustomVitH(nn.Module):
         super(CustomVitH, self).__init__()
         self.backbone = base_model
         self.neck = Neck(self.backbone.token_embedding.embedding_dim, emb_dim)
-        self.head = ArcMarginProduct_subcenter(emb_dim, num_classes)
+        # self.head = ArcMarginProduct_subcenter(emb_dim, num_classes)
+        self.head = Head(emb_dim, num_classes)
 
     def forward(self, x):
         x = self.backbone.encode_image(x)

@@ -315,7 +315,7 @@ class Contrastive_Arc_Loss(nn.Module):
         return loss
 
 
-class DenseCrossEntropyLoss(nn.Module):
+class DenseCrossEntropy(nn.Module):
     def forward(self, x, target):
         x = x.float()
         target = target.float()

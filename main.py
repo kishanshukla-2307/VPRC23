@@ -33,7 +33,7 @@ def set_criterion(config, model_name):
     elif config[model_name]['loss_fn'] == 'cross_entropy':
         return torch.nn.CrossEntropyLoss()
     elif config[model_name]['loss_fn'] == 'dense_cross_entropy':
-        return DenseCrossEntropyLoss()
+        return DenseCrossEntropy()
     else:
         raise NotImplementedError('Loss function not found!!')
 
@@ -69,7 +69,8 @@ def set_optimizer(config, model_name, model):
         
 def save_checkpoint(config, model_name, model, optimizer, epoch, outdir):
     """Saves checkpoint to drive"""
-
+    if config[model_name]['load_saved']:
+        epoch += config[model_name]['epoch_offset']
     filename = "{}_{:04d}.pth".format(model_name, epoch)
     directory = outdir
     filename = os.path.join(directory, filename)
@@ -78,7 +79,6 @@ def save_checkpoint(config, model_name, model, optimizer, epoch, outdir):
         ('config', config),
         ('state_dict', weights),
         ('optimizer', optimizer.state_dict()),
-        # ('scheduler', scheduler.state_dict()),
         ('epoch', epoch),
     ])
 
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     logger = create_logger(output_dir=config['system']['output']+"/"+args.model, name=f"{args.model}")
     logger.info(f"config: {config}")
 
-    model, preprocessor = build_model(config, args.model)
+    model, preprocessor = build_model(config, logger, args.model)
     model.to(config['system']['device'])
 
     data_handler = set_data_handler(config['system']['train_csv_path'], config['system']['test_csv_path'], config['system']['split_ratio'], preprocessor)
@@ -131,11 +131,13 @@ if __name__ == '__main__':
                                                                                                                                                
     loss_fn = set_criterion(config, args.model)
     optimizer = set_optimizer(config, args.model, model)
-    # scheduler = 
+    
 
     train_loader = set_train_loader(config, args.model, train_set)
     validation_loader = set_validation_loader(config, args.model, validation_set)
     test_loader = set_test_loader(config, args.model, test_set)
+
+    # batch_test = next(iter(train_loader))
 
     logger.info("Start training")
 

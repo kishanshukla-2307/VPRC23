@@ -1,13 +1,13 @@
 ---
 system:
-  train_csv_path: ../data/train.csv
-  test_csv_path: ../data/test.csv
-  train_samples_path: ../data/train/
+  train_csv_path: ../../Product10k/preprocessed_train.csv
+  test_csv_path: ../../Product10k/test.csv
+  train_samples_path: /../../../../content/train/
   test_samples_path: /../../Product10k/test/
   output: ./output
   map_scores_path: /content/drive/MyDrive/
   split_ratio: 0.15
-  device: 'cpu'
+  device: 'cuda'
 
 MobNet:
   model_name: mobilenetv3_large_100
@@ -45,33 +45,33 @@ BEiT:
 
 VitB:
   model_name: 'ViT-B-32-quickgelu'
-  num_classes: 9691
-  embedding_dim: 512
-  batch_size: 4
-  epochs: 10
-  optimizer:
-    name: sgd
-    lr: 0.001
-    momentum: 0.9
-    decay: 0.0001
-  loss_fn: 'cross_entropy'
-  sampler: 'group_based'
-  load_saved: False
-  from_timm: True
-  output_dir: '/content/drive/MyDrive/model_checkpoint/model_triplet_c&g_LR_imbalance_handled_0.0001_0002.pth'
-
-
-VitH:
-  model_name: 'ViT-H-14'
-  num_classes: 9691
+  num_classes: 7907
   embedding_dim: 128
-  batch_size: 4
-  epochs: 10
+  batch_size: 1024
+  epochs: 35
   optimizer:
     name: adam
     lr: 0.0001
   loss_fn: 'dense_cross_entropy'
   sampler: 'default'
-  load_saved: False
+  load_saved: True
+  epoch_offset: 5
   from_timm: True
-  output_dir: '/content/drive/MyDrive/model_checkpoint/model_triplet_c&g_LR_imbalance_handled_0.0001_0002.pth'
+  ckpt_path: './output/VitB/VitB_0004.pth'
+
+
+VitH:
+  model_name: 'ViT-H-14'
+  num_classes: 7907
+  embedding_dim: 128
+  batch_size: 128
+  epochs: 2
+  optimizer:
+    name: adam
+    lr: 0.0001
+  loss_fn: 'dense_cross_entropy'
+  sampler: 'default'
+  load_saved: True
+  epoch_offset: 1
+  from_timm: False
+  ckpt_path: '/content/drive/MyDrive/Github/VPRC23/output/VitH/VitH_without_arcface_0000.pth'
